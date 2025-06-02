@@ -1,0 +1,9 @@
+WARNING    - 2025-06-02 10:45:52,149 - client          : PyNaCl is not installed, voice will NOT be supported
+INFO       - 2025-06-02 10:45:52,155 - client          : logging in using static token
+INFO       - 2025-06-02 10:45:53,417 - main            : Loaded (distance_sensor.py)
+INFO       - 2025-06-02 10:45:53,417 - main            : Loaded (hello.py)
+INFO       - 2025-06-02 10:45:53,417 - main            : Loaded (image.py)
+INFO       - 2025-06-02 10:45:53,417 - main            : Loaded (light.py)
+INFO       - 2025-06-02 10:45:53,434 - main            : Loaded (temphum.py)
+INFO       - 2025-06-02 10:45:54,102 - main            : Synced 11 commands to global
+INFO       - 2025-06-02 10:45:54,892 - gateway         : Shard ID None has connected to Gateway (Session ID: 293f4bce2d417efcf99b51243bc2b8ac).

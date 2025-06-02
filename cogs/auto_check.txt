@@ -1,0 +1,73 @@
+import discord
+import requests
+import asyncio
+from discord.ext import commands, tasks
+import contrls.atc_ctrl as atc
+from contrls import th_ctrl as th
+from contrls import lgh_ctrl as lh
+import settings
+
+check_interval = 60
+    
+async def setup(bot: commands.Bot):
+    await bot.add_cog(AutoCheckup(bot))
+
+class AutoCheckup(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        
+    @tasks.loop(seconds=check_interval)
+    async def auto_check(self, ctx: commands.Context):
+        
+        temp = await th.get_temperature()
+        
+        if temp is not None:
+            if temp < atc.lower_treshold:
+                await lh.toggle_light('on')
+                await ctx.send("Autocheck : Temperature is lower than threshold. Lamp turned on")
+                print("light toggled on")
+            elif temp > atc.upper_treshold:
+                await lh.toggle_light('off')
+                await ctx.send("Autocheck : Temperature is higher than threshold. Lamp turned off")
+                print("light toggled off")
+            else:
+                print("Autocheck : Temp is within treshold")
+                print("temp is stable")
+        else:
+            await ctx.send("Autocheck failed : Cant connect to incubator")
+            print("cant connect to device right now")
+        
+        # msg = await atc.auto_check()
+        # temp, stat = msg
+        # if stat is not None:
+        #     if stat == True:
+        #         return str(f"Current temp is lower that treshold, automatically turn light on")
+        #     else:
+        #         return str(f"Current temp is greater that treshold, automatically turn light off")
+                
+    @commands.hybrid_command()
+    async def set_interval(self, ctx: commands.Context, seconds: float):
+        global check_interval
+        if seconds < 5:
+            await ctx.send("Minimum interval is 5 seconds")
+            return
+        check_interval = seconds
+        self.auto_check.change_interval(seconds=check_interval)
+        await ctx.send(f"Interval changed to {check_interval} seconds")
+
+    @commands.hybrid_command()
+    async def start_check(self, ctx: commands.Context):
+        """ Begin auto temperature checkup per interval """
+        if not self.auto_check.is_running():
+            self.auto_check.start(ctx=ctx)
+            await ctx.send("Auto temperature check started")
+        else:
+            await ctx.send("Auto temeprature check is already running")
+    
+    @commands.hybrid_command()
+    async def stop_check(self, ctx: commands.Context):
+        if self.auto_check.is_running():
+            self.auto_check.stop()
+            await ctx.send("Auto temperature check stopped")
+        else:
+            await ctx.send("Auto temperature check is already stopped")

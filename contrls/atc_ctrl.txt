@@ -1,0 +1,26 @@
+import requests
+import settings
+import contrls.th_ctrl as th
+import contrls.lgh_ctrl as lh
+
+lower_treshold = 35.0
+upper_treshold = 40.0
+
+async def auto_check():
+    requests.put(settings.FIREBASE_COMMAND_PATH, json='read_temperature')
+    
+    temp = await th.get_temperature()
+    if temp is not  None:
+        if temp < lower_treshold:
+            await lh.toggle_light("on")
+            print(f"Current temp : {temp}, lamp is turned on")
+            return temp, True
+        elif temp > upper_treshold:
+            await lh.toggle_light("off")
+            print(f"Current temp : {temp}, lamp turned off")
+            return temp, True
+        else:
+            print("Temp is within range")
+            return temp, False
+    else:
+        return None, None
